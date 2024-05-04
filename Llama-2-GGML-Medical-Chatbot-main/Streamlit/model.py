@@ -18,19 +18,23 @@ Only return the helpful answer below and nothing else.
 Helpful answer:
 """
 
+
 def set_custom_prompt():
     prompt = PromptTemplate(template=custom_prompt_template,
                             input_variables=['context', 'question'])
     return prompt
 
+
 def retrieval_qa_chain(llm, prompt, db):
     qa_chain = RetrievalQA.from_chain_type(llm=llm,
                                            chain_type='stuff',
-                                           retriever=db.as_retriever(search_kwargs={'k': 2}),
+                                           retriever=db.as_retriever(
+                                               search_kwargs={'k': 2}),
                                            return_source_documents=True,
                                            chain_type_kwargs={'prompt': prompt}
                                            )
     return qa_chain
+
 
 def load_llm():
     llm = CTransformers(
@@ -40,6 +44,7 @@ def load_llm():
         temperature=0.5
     )
     return llm
+
 
 def qa_bot(query):
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2",
@@ -53,30 +58,25 @@ def qa_bot(query):
     response = qa({'query': query})
     return response['result']
 
+
 def add_vertical_space(spaces=1):
     for _ in range(spaces):
-        st.markdown("---") 
+        st.markdown("---")
+
 
 def main():
-    st.set_page_config(page_title="Llama-2-GGML Medical Chatbot")
+    st.set_page_config(page_title="Medical Chatbot")
 
     with st.sidebar:
-        st.title('Llama-2-GGML Medical Chatbot! 🚀🤖')
+        st.title('Medical Chatbot!')
         st.markdown('''
-        ## About
-                    
-        The Llama-2-GGML Medical Chatbot uses the **Llama-2-7B-Chat-GGML** model and was trained on medical data from **"The GALE ENCYCLOPEDIA of MEDICINE"**.
-                    
-        ### 🔄Bot evolving, stay tuned!
-        ## Useful Links 🔗
-
-        - **Model:** [Llama-2-7B-Chat-GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML) 📚
-        - **GitHub:** [ThisIs-Developer/Llama-2-GGML-Medical-Chatbot](https://github.com/ThisIs-Developer/Llama-2-GGML-Medical-Chatbot) 💬
+        Hi
         ''')
         add_vertical_space(1)  # Adjust the number of spaces as needed
-        st.write('Made by [@ThisIs-Developer](https://huggingface.co/ThisIs-Developer)')
+        st.write(
+            'AIoT Lab')
 
-    st.title("Llama-2-GGML Medical Chatbot")
+    st.title("Medical Chatbot")
     st.markdown(
         """
         <style>
@@ -107,15 +107,15 @@ def main():
                 word-wrap: break-word;
             }
         </style>
-        """
-    , unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
     conversation = st.session_state.get("conversation", [])
-    
+
     query = st.text_input("Ask your question here:", key="user_input")
     if st.button("Get Answer"):
         if query:
-            with st.spinner("Processing your question..."):  # Display the processing message
+            # Display the processing message
+            with st.spinner("Processing your question..."):
                 conversation.append({"role": "user", "message": query})
                 # Call your QA function
                 answer = qa_bot(query)
@@ -125,8 +125,11 @@ def main():
             st.warning("Please input a question.")
 
     chat_container = st.empty()
-    chat_bubbles = ''.join([f'<div class="{c["role"]}-bubble">{c["message"]}</div>' for c in conversation])
-    chat_container.markdown(f'<div class="chat-container">{chat_bubbles}</div>', unsafe_allow_html=True)
+    chat_bubbles = ''.join(
+        [f'<div class="{c["role"]}-bubble">{c["message"]}</div>' for c in conversation])
+    chat_container.markdown(
+        f'<div class="chat-container">{chat_bubbles}</div>', unsafe_allow_html=True)
+
 
 if __name__ == "__main__":
     main()

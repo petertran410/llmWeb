@@ -19,6 +19,7 @@ Only return the helpful answer below and nothing else.
 Helpful answer:
 """
 
+
 def set_custom_prompt():
     """
     Prompt template for QA retrieval for each vectorstore
@@ -28,16 +29,21 @@ def set_custom_prompt():
     return prompt
 
 # Retrieval QA Chain
+
+
 def retrieval_qa_chain(llm, prompt, db):
     qa_chain = RetrievalQA.from_chain_type(llm=llm,
-                                       chain_type='stuff',
-                                       retriever=db.as_retriever(search_kwargs={'k': 2}),
-                                       return_source_documents=True,
-                                       chain_type_kwargs={'prompt': prompt}
-                                       )
+                                           chain_type='stuff',
+                                           retriever=db.as_retriever(
+                                               search_kwargs={'k': 2}),
+                                           return_source_documents=True,
+                                           chain_type_kwargs={'prompt': prompt}
+                                           )
     return qa_chain
 
 # Loading the model
+
+
 def load_llm():
     # Load the locally downloaded model here
     llm = CTransformers(
@@ -49,6 +55,8 @@ def load_llm():
     return llm
 
 # QA Model Function
+
+
 async def qa_bot():
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2",
                                        model_kwargs={'device': 'cpu'})
@@ -60,12 +68,16 @@ async def qa_bot():
     return qa
 
 # Output function
+
+
 async def final_result(query):
     qa_result = await qa_bot()
     response = await qa_result({'query': query})
     return response
 
 # chainlit code
+
+
 @cl.on_chat_start
 async def start():
     chain = await qa_bot()
@@ -75,6 +87,7 @@ async def start():
     # await msg.update()
 
     cl.user_session.set("chain", chain)
+
 
 @cl.on_message
 async def main(message):
